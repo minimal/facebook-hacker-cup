@@ -1,4 +1,4 @@
-# fb-lines (Beatiful Strings)
+# fb-lines (Beautiful Strings)
 
 Beautiful strings
 
