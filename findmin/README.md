@@ -1,6 +1,6 @@
 # findmin
 
-Runs the input data file (20 cases) in about 12 seconds on and i5/i7
+Runs the input data file (20 cases) in about 12 seconds on an i5/i7
 
 
 ## Usage
