@@ -1,32 +1,16 @@
 # findmin
 
-FIXME: description
+Runs the input data file (20 cases) in about 12 seconds on and i5/i7
 
-## Installation
-
-Download from http://example.com/FIXME.
 
 ## Usage
 
 FIXME: explanation
 
     $ lein run [inputfile.txt]
+     or
+    $ lein test
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
