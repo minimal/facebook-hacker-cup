@@ -11,26 +11,21 @@
 
 (defn even-parens? [line]
   (loop [score 0 chars (seq line)]
-    (if (neg? score)
-      false
-      (if-let [c (first chars)]
-        (case c
-          \( (recur (inc score) (rest chars))
-          \) (recur (dec score) (rest chars))
-          (recur score (rest chars)))
-        (if (zero? score)
-          true
-          false)))))
+    (case (first chars)
+      \( (recur (inc score) (rest chars))
+      \) (if (neg? (dec score))
+           false
+           (recur (dec score) (rest chars)))
+      nil (zero? score)
+      (recur score (rest chars)))))
 
 (defn balanced? [line]
-  (let [matches (re-find reg line)]
-    (if matches 
-      (let [m1 (first matches)
-            newmatch (subs m1 1 (dec (count m1)))
-            newline (clojure.string/replace-first line m1 newmatch)]
-        (balanced? newline))
-      (let [line (rm-smileys line)]
-        (even-parens? line)))))
+  (if-let [matches (re-find reg line)]
+    (let [m1 (first matches)
+          newmatch (subs m1 1 (dec (count m1)))
+          newline (clojure.string/replace-first line m1 newmatch)]
+      (balanced? newline))
+    (even-parens? (rm-smileys line))))
 
 (defn tests []
   (is (= false (balanced? ")(")))
