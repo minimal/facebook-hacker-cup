@@ -9,6 +9,7 @@
 (def alphabet (set "abcdefghijklmnopqrstuvwxyz"))
 
 (ann clojure.core/sort-by [[Any -> Boolean] t/Seqable -> (t/Seqable String)])
+(ann clojure.string/lower-case [String -> String])
 (ann calc-line [String -> Number])
 (defn calc-line [line]
   (let [ranks (reverse
@@ -17,9 +18,9 @@
                          (filter alphabet
                                  (clojure.string/lower-case line)))))
         zipranks (zipmap ranks (range 26 1 -1))
-        _ (ann-form zipranks (t/Map t/Seqable  AnyInteger))]
+        _ (ann-form zipranks (t/Map '[Character AnyInteger] AnyInteger))]
     (apply + (for> :- Number
-                   [[[_ mult] score] :-  (t/Map String AnyInteger) zipranks]
+                   [[[_ mult] score] :- '['[Character AnyInteger] AnyInteger] zipranks]
                (* mult score)))))
 
 (ann lines-from-file [String -> (t/Seqable String)])
