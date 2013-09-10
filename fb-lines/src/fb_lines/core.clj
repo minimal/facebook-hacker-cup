@@ -5,11 +5,18 @@
                                         letfn> override-method dotimes>]
              :as t]))
 
+;; missing core annotations
+(ann clojure.core/sort-by [[Any -> Boolean] t/Seqable -> (t/Seqable String)])
+(ann clojure.string/lower-case [String -> String])
+(ann clojure.core/frequencies ['[Character] -> (t/Map Character Number)])
+(ann clojure.core/filter [(t/Set Character) String -> '[Character]])
+(ann clojure.string/split-lines [String -> '[String]])
+(ann clojure.core/slurp [String -> String])
+
 (ann alphabet (t/Set Character))
 (def alphabet (set "abcdefghijklmnopqrstuvwxyz"))
 
-(ann clojure.core/sort-by [[Any -> Boolean] t/Seqable -> (t/Seqable String)])
-(ann clojure.string/lower-case [String -> String])
+
 (ann calc-line [String -> Number])
 (defn calc-line [line]
   (let [ranks (reverse
@@ -27,9 +34,9 @@
 (defn lines-from-file [filename]
   (clojure.string/split-lines (slurp filename)))
 
-(ann -main ['[String] -> Any])
+(ann  -main [String -> Any])
 (defn -main
-  [& args]
-  (let [scores (map calc-line (rest (lines-from-file (first args))))]
-    (doseq [[idx  score] (map-indexed vector scores)]
+  [file]
+  (let [scores (map calc-line (rest (lines-from-file file)))]
+    (doseq> [[idx score] :- '[AnyInteger AnyInteger] (map-indexed vector scores)]
       (println (str "Case #" (inc idx) ": " score)))))
