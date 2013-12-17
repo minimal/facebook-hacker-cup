@@ -25,9 +25,10 @@
     (assoc m key (f (m key)))
     (assoc m key 1)))
 
-(defn missing-ints [m max]
+(defn missing-ints
   "Given a map of with integer keys return a set of missing keys up to max.
    e.g. (missing-ints {1 2, 4 10} 6) => #{0 2 3 5 6} "
+  [m max]
   (apply sorted-set
          (set/difference (set (range (inc max))) (set (keys m)))))
 
