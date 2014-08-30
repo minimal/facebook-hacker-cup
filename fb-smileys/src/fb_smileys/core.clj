@@ -1,26 +1,18 @@
 (ns fb-smileys.core
-  (:use [clojure.test])
-  (:require [clojure.core.typed :refer [ann check-ns typed-deps def-alias ann-datatype
-                                        for> fn> ann-form AnyInteger doseq> cf inst
-                                        letfn> override-method dotimes> loop>]
-             :as t])
+  (:require [clojure.core.typed :as t :refer [ann inst AnyInteger]]
+            [clojure.test :refer :all])
   (:gen-class))
 
-(ann reg java.util.regex.Pattern)
-(def reg #"(\(.*?)(:\))?(:\()?(\))")
-
-(ann clojure.string/replace [String String String -> String])
 (ann rm-smileys [String -> String])
 (defn rm-smileys [line]
   (-> line
     (clojure.string/replace ":)" "")
     (clojure.string/replace ":(" "")))
 
-(ann clojure.core/neg? [AnyInteger -> Boolean])
 (ann even-parens? [String -> Boolean])
 (defn even-parens? [line]
-  (loop> [score :- AnyInteger 0
-          chars :- (U (t/Seq java.lang.Character) nil) (seq line)]
+  (t/loop [score :- AnyInteger 0
+           chars :- (t/Option (t/Seq java.lang.Character)) (seq line)]
     (case (first chars)
       \( (recur (inc score) (rest chars))
       \) (if (#'neg? (dec score))
@@ -31,14 +23,35 @@
 
 (ann  balanced? [String -> Boolean])
 (defn balanced? [line]
-  (if-let [matches (re-find reg line)]
-    (let [m1 (first matches)
+  (if-let [matches (re-find  #"(\(.*?)(:\))?(:\()?(\))" line)]
+    (let [m1 (str (first matches)) ;; ensure countable, not char
           newmatch (subs m1 1 (dec (count m1)))
           newline (clojure.string/replace-first line m1 newmatch)]
       (balanced? newline))
     (even-parens? (rm-smileys line))))
 
-(ann ^:no-check tests [ -> Boolean])
+(ann yesno-map (t/Map Boolean String))
+(def yesno-map
+  {true "YES" false "NO"})
+
+(t/ann clojure.string/split-lines [String -> (t/Vec String)])
+(t/ann clojure.core/slurp [String -> String])
+(t/ann parse-file [String -> (t/Seq Boolean)])
+(defn parse-file [filename]
+  (let [text (slurp filename)]
+    (t/for [line :- String,
+            (rest (clojure.string/split-lines text))]
+      :- Boolean
+      (balanced? line))))
+
+(t/ann  results-to-str [(t/Seqable Boolean) -> (t/Seq t/Str)])
+(defn results-to-str [results]
+  (t/for [[idx line] :- '[AnyInteger Boolean]
+          (map-indexed (inst vector t/Any AnyInteger Boolean) results)]
+    :- String
+    (str "Case #" (inc idx) ":" (yesno-map line))))
+
+(ann ^:no-check tests [ -> t/Any])
 (defn tests []
   (is (= false (balanced? ")(")))
   (is (= true (balanced? "hacker cup: started :):)" )))
@@ -46,18 +59,11 @@
   (is (= false (balanced? ":((")))
   (is (= true (balanced? "(:)"))))
 
-(ann yesno-map (HMap Boolean String))
-(def yesno-map
-  {true "YES" false "NO"})
-
-(ann ^:no-check parse-file [String -> Any])
-(defn parse-file [filename]
-  (doseq [[idx line] (map-indexed vector (rest (clojure.string/split-lines (slurp filename))))]
-    (println (str "Case #" (inc idx) ": " (yesno-map (balanced? line))))))
-
-(ann -main [String * -> Any])
+(ann -main [String * -> t/Any])
 (defn -main
   [& args]
   (if-let [filename (first args)]
-    (parse-file filename)
+    (println (clojure.string/join
+              (interleave (results-to-str (parse-file filename))
+                          (repeat "\n"))))
     (tests)))
